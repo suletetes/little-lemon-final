@@ -9,87 +9,87 @@ import SwiftUI
 
 struct UserProfile: View {
     @StateObject private var viewModel = ViewModel()
-    
+
     @Environment(\.presentationMode) var presentation
-    
+
     @State private var orderStatuses = true
     @State private var passwordChanges = true
     @State private var specialOffers = true
     @State private var newsletter = true
-    
+
     @State private var firstName = ""
     @State private var lastName = ""
     @State private var email = ""
     @State private var phoneNumber = ""
-    
+
     @State private var isLoggedOut = false
-    
+
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             NavigationLink(destination: Onboarding(), isActive: $isLoggedOut) { }
             VStack(spacing: 5) {
                 VStack {
                     Text("Avatar")
-                        .onboardingTextStyle()
+                            .onboardingTextStyle()
                     HStack(spacing: 0) {
                         Image("profile-image-placeholder")
-                            .resizable()
-                            .aspectRatio( contentMode: .fit)
-                            .frame(maxHeight: 75)
-                            .clipShape(Circle())
-                            .padding(.trailing)
+                                .resizable()
+                                .aspectRatio( contentMode: .fit)
+                                .frame(maxHeight: 75)
+                                .clipShape(Circle())
+                                .padding(.trailing)
                         Button("Change") { }
-                            .buttonStyle(ButtonStylePrimaryColor1())
+                                .buttonStyle(ButtonStylePrimaryColor1())
                         Button("Remove") { }
-                            .buttonStyle(ButtonStylePrimaryColorReverse())
+                                .buttonStyle(ButtonStylePrimaryColorReverse())
                         Spacer()
                     }
                 }
-                
+
                 VStack{
                     Text("First name")
-                        .onboardingTextStyle()
+                            .onboardingTextStyle()
                     TextField("First Name", text: $firstName)
                 }
-                
+
                 VStack {
                     Text("Last name")
-                        .onboardingTextStyle()
+                            .onboardingTextStyle()
                     TextField("Last Name", text: $lastName)
-                    
+
                 }
-                
+
                 VStack {
                     Text("E-mail")
-                        .onboardingTextStyle()
+                            .onboardingTextStyle()
                     TextField("E-mail", text: $email)
-                        .keyboardType(.emailAddress)
+                            .keyboardType(.emailAddress)
                 }
-                
+
                 VStack {
                     Text("Phone number")
-                        .onboardingTextStyle()
+                            .onboardingTextStyle()
                     TextField("Phone number", text: $phoneNumber)
-                        .keyboardType(.default)
+                            .keyboardType(.phonePad)
                 }
             }
-            .textFieldStyle(.roundedBorder)
-            .disableAutocorrection(true)
-            .padding()
-            
+                    .textFieldStyle(.roundedBorder)
+                    .disableAutocorrection(true)
+                    .padding()
+
             Text("Email notifications")
-                .font(.regularText())
-                .foregroundColor(.primaryColor1)
+                    .font(.regularText())
+                    .foregroundColor(.primaryColor1)
             VStack {
                 Toggle("Order statuses", isOn: $orderStatuses)
                 Toggle("Password changes", isOn: $passwordChanges)
                 Toggle("Special offers", isOn: $specialOffers)
                 Toggle("Newsletter", isOn: $newsletter)
             }
-            .padding()
-            .font(Font.leadText())
-            .foregroundColor(.primaryColor1)
-            
+                    .padding()
+                    .font(Font.leadText())
+                    .foregroundColor(.primaryColor1)
+
             Button("Log out") {
                 UserDefaults.standard.set(false, forKey: kIsLoggedIn)
                 UserDefaults.standard.set("", forKey: kFirstName)
@@ -102,7 +102,7 @@ struct UserProfile: View {
                 UserDefaults.standard.set(false, forKey: kNewsletter)
                 isLoggedOut = true
             }
-            .buttonStyle(ButtonStyleYellowColorWide())
+                    .buttonStyle(ButtonStyleYellowColorWide())
             Spacer(minLength: 20)
             HStack {
                 Button("Discard Changes") {
@@ -110,14 +110,14 @@ struct UserProfile: View {
                     lastName = viewModel.lastName
                     email = viewModel.email
                     phoneNumber = viewModel.phoneNumber
-                    
+
                     orderStatuses = viewModel.orderStatuses
                     passwordChanges = viewModel.passwordChanges
                     specialOffers = viewModel.specialOffers
                     newsletter = viewModel.newsletter
                     self.presentation.wrappedValue.dismiss()
                 }
-                    .buttonStyle(ButtonStylePrimaryColorReverse())
+                        .buttonStyle(ButtonStylePrimaryColorReverse())
                 Button("Save changes") {
                     if viewModel.validateUserInput(firstName: firstName, lastName: lastName, email: email, phoneNumber: phoneNumber) {
                         UserDefaults.standard.set(firstName, forKey: kFirstName)
@@ -131,36 +131,33 @@ struct UserProfile: View {
                         self.presentation.wrappedValue.dismiss()
                     }
                 }
-                    .buttonStyle(ButtonStylePrimaryColor1())
+                        .buttonStyle(ButtonStylePrimaryColor1())
             }
             if viewModel.errorMessageShow {
                 withAnimation() {
                     Text(viewModel.errorMessage)
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading)
+                            .foregroundColor(.red)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading)
                 }
             }
-            
+
         }
-        .onAppear {
-            firstName = viewModel.firstName
-            lastName = viewModel.lastName
-            email = viewModel.email
-            phoneNumber = viewModel.phoneNumber
-            
-            orderStatuses = viewModel.orderStatuses
-            passwordChanges = viewModel.passwordChanges
-            specialOffers = viewModel.specialOffers
-            newsletter = viewModel.newsletter
-        }
-        .navigationTitle(Text("Personal information"))
-        .navigationBarTitleDisplayMode(.inline)
+                .onAppear {
+                    firstName = viewModel.firstName
+                    lastName = viewModel.lastName
+                    email = viewModel.email
+                    phoneNumber = viewModel.phoneNumber
+
+                    orderStatuses = viewModel.orderStatuses
+                    passwordChanges = viewModel.passwordChanges
+                    specialOffers = viewModel.specialOffers
+                    newsletter = viewModel.newsletter
+                }
+                .navigationTitle(Text("Personal information"))
+                .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 struct UserProfile_Previews: PreviewProvider {
-    static var previews: some View {
-        UserProfile()
-    }
-}
+
