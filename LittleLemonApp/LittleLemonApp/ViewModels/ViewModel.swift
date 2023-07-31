@@ -5,6 +5,7 @@
 //  Created by suleabdul on 31.07.2023.
 //
 
+
 import Foundation
 import Combine
 
@@ -20,56 +21,62 @@ public let kSpecialOffers = "special offers key"
 public let kNewsletter = "news letter key"
 
 class ViewModel: ObservableObject {
-    
+
     @Published var firstName = UserDefaults.standard.string(forKey: kFirstName) ?? ""
     @Published var lastName = UserDefaults.standard.string(forKey: kLastName) ?? ""
     @Published var email = UserDefaults.standard.string(forKey: kEmail) ?? ""
     @Published var phoneNumber = UserDefaults.standard.string(forKey: kPhoneNumber) ?? ""
-    
+
     @Published var orderStatuses = UserDefaults.standard.bool(forKey: kOrderStatuses)
     @Published var passwordChanges = UserDefaults.standard.bool(forKey: kPasswordChanges)
     @Published var specialOffers = UserDefaults.standard.bool(forKey: kSpecialOffers)
     @Published var newsletter = UserDefaults.standard.bool(forKey: kNewsletter)
-    
-    
+
     @Published var errorMessageShow = false
     @Published var errorMessage = ""
-    
+
     @Published var searchText = ""
-    
+
     func validateUserInput(firstName: String, lastName: String, email: String, phoneNumber: String) -> Bool {
         guard !firstName.isEmpty && !lastName.isEmpty && !email.isEmpty else {
             errorMessage = "All fields are required"
             errorMessageShow = true
             return false
         }
-        
+
         guard email.contains("@") else {
             errorMessage = "Invalid email address"
             errorMessageShow = true
             return false
         }
-        
-        let email = email.split(separator: "@")
-        
-        guard email.count == 2 else {
+
+        let emailParts = email.split(separator: "@")
+
+        guard emailParts.count == 2, emailParts[1].contains(".") else {
             errorMessage = "Invalid email address"
             errorMessageShow = true
             return false
         }
-        
-        guard email[1].contains(".") else {
-            errorMessage = "Invalid email address"
-            errorMessageShow = true
-            return false
-        }
-        guard phoneNumber.first == "+" && phoneNumber.dropFirst().allSatisfy({$0.isNumber}) || phoneNumber.isEmpty else {
+
+        guard phoneNumber.isEmpty || (phoneNumber.first == "+" && phoneNumber.dropFirst().allSatisfy({ $0.isNumber })) else {
             errorMessage = "Invalid phone number format."
             errorMessageShow = true
             return false
         }
+
         errorMessageShow = false
         errorMessage = ""
         return true
+    }
+
+    func saveUserInfo() {
+        UserDefaults.standard.set(firstName, forKey: kFirstName)
+        UserDefaults.standard.set(lastName, forKey: kLastName)
+        UserDefaults.standard.set(email, forKey: kEmail)
+        UserDefaults.standard.set(phoneNumber, forKey: kPhoneNumber)
+        UserDefaults.standard.set(orderStatuses, forKey: kOrderStatuses)
+        UserDefaults.standard.set(passwordChanges, forKey: kPasswordChanges)
+        UserDefaults.standard.set(specialOffers, forKey: kSpecialOffers)
+        UserDefaults.standard.set(newsletter, forKey: kNewsletter)
     }
 }
