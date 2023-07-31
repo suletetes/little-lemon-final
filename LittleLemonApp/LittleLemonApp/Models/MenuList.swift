@@ -5,40 +5,45 @@
 //  Created by suleabdul on 31.07.2023.
 //
 
+
 import Foundation
 import CoreData
 
 struct MenuList: Codable {
     let menu: [MenuItem]
-    
+
     enum CodingKeys: String, CodingKey {
-        case menu = "menu"
+        case menu
     }
-    
+
     static func getMenuData(viewContext: NSManagedObjectContext) {
         PersistenceController.shared.clear()
-        
-        let url = URL(string: "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json")
-        let request = URLRequest(url: url!)
+
+        guard let url = URL(string: "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json") else {
+            print("Invalid URL")
+            return
+        }
+
         let session = URLSession.shared
-        let dataTask = session.dataTask(with: request) { data, response, error in
+        let dataTask = session.dataTask(with: url) { data, response, error in
             if let data = data {
                 let decoder = JSONDecoder()
-                if let fullMenu = try? decoder.decode(MenuList.self, from: data) {
+                do {
+                    let fullMenu = try decoder.decode(MenuList.self, from: data)
                     for dish in fullMenu.menu {
                         let newDish = Dish(context: viewContext)
                         newDish.title = dish.title
                         newDish.price = dish.price
                         newDish.descriptionDish = dish.descriptionDish
-                        newDish.image = dish.image
+                        newDish.image = URL(string: dish.image) // Convert image string to URL
                         newDish.category = dish.category
                     }
-                    try? viewContext.save()
-                } else {
-                    print(error.debugDescription.description)
+                    try viewContext.save()
+                } catch {
+                    print("Error decoding menu data: \(error)")
                 }
-            } else {
-                print(error.debugDescription.description)
+            } else if let error = error {
+                print("Error fetching menu data: \(error)")
             }
         }
         dataTask.resume()
