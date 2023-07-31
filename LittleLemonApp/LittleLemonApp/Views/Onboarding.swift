@@ -4,61 +4,67 @@
 //
 //  Created by suleabdul on 31.07.2023.
 //
+
 import SwiftUI
 
 struct Onboarding: View {
     @StateObject private var viewModel = ViewModel()
-    
+
     @State var firstName = ""
     @State var lastName = ""
     @State var email = ""
     @State var phoneNumber = ""
-    
+
     @State var isKeyboardVisible = false
     @State var contentOffset: CGSize = .zero
-    
+
     @State var isLoggedIn = false
-    
+
     var body: some View {
         NavigationStack {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack {
                     Header()
                     Hero()
-                        .padding()
-                        .background(Color.primaryColor1)
-                        .frame(maxWidth: .infinity, maxHeight: 240)
+                            .padding()
+                            .background(Color.primaryColor1)
+                            .frame(maxWidth: .infinity, maxHeight: 240)
                     VStack {
                         NavigationLink(destination: Home(), isActive: $isLoggedIn) { }
                         Text("First name *")
-                            .onboardingTextStyle()
+                                .onboardingTextStyle()
                         TextField("First Name", text: $firstName)
                         Text("Last name *")
-                            .onboardingTextStyle()
+                                .onboardingTextStyle()
                         TextField("Last Name", text: $lastName)
                         Text("E-mail *")
-                            .onboardingTextStyle()
+                                .onboardingTextStyle()
                         TextField("E-mail", text: $email)
-                            .keyboardType(.emailAddress)
+                                .keyboardType(.emailAddress)
+                        Text("Phone Number")
+                                .onboardingTextStyle()
+                        TextField("Phone Number", text: $phoneNumber)
+                                .keyboardType(.phonePad)
                     }
-                    .textFieldStyle(.roundedBorder)
-                    .disableAutocorrection(true)
-                    .padding()
-                    
+                            .textFieldStyle(.roundedBorder)
+                            .disableAutocorrection(true)
+                            .padding()
+
                     if viewModel.errorMessageShow {
                         withAnimation() {
                             Text(viewModel.errorMessage)
-                                .foregroundColor(.red)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.leading)
+                                    .foregroundColor(.red)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading)
                         }
                     }
-                    
+
                     Button("Register") {
                         if viewModel.validateUserInput(firstName: firstName, lastName: lastName, email: email, phoneNumber: phoneNumber) {
                             UserDefaults.standard.set(firstName, forKey: kFirstName)
                             UserDefaults.standard.set(lastName, forKey: kLastName)
                             UserDefaults.standard.set(email, forKey: kEmail)
+                            UserDefaults.standard.set(phoneNumber, forKey: kPhoneNumber) // Save phone number as well
                             UserDefaults.standard.set(true, forKey: kIsLoggedIn)
                             UserDefaults.standard.set(true, forKey: kOrderStatuses)
                             UserDefaults.standard.set(true, forKey: kPasswordChanges)
@@ -67,40 +73,41 @@ struct Onboarding: View {
                             firstName = ""
                             lastName = ""
                             email = ""
+                            phoneNumber = "" // Reset phone number as well
                             isLoggedIn = true
                         }
                     }
-                    .buttonStyle(ButtonStyleYellowColorWide())
-                    
+                            .buttonStyle(ButtonStyleYellowColorWide())
+
                     Spacer()
                 }
-                .offset(y: contentOffset.height)
-                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-                    withAnimation {
-                        let keyboardRect = notification.userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! CGRect
-                        let keyboardHeight = keyboardRect.height
-                        self.isKeyboardVisible = true
-                        self.contentOffset = CGSize(width: 0, height: -keyboardHeight / 2 + 50)
-                    }
-                    
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
-                    withAnimation {
-                        self.isKeyboardVisible = false
-                        self.contentOffset = .zero
-                    }
-                }
+                        .offset(y: contentOffset.height)
+                        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+                            withAnimation {
+                                let keyboardRect = notification.userInfo![UIResponder.keyboardFrameEndUserInfoKey] as! CGRect
+                                let keyboardHeight = keyboardRect.height
+                                self.isKeyboardVisible = true
+                                self.contentOffset = CGSize(width: 0, height: -keyboardHeight / 2 + 50)
+                            }
+
+                        }
+                        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
+                            withAnimation {
+                                self.isKeyboardVisible = false
+                                self.contentOffset = .zero
+                            }
+                        }
             }
-            .onAppear() {
-                if UserDefaults.standard.bool(forKey: kIsLoggedIn) {
-                    isLoggedIn = true
-                }
-            }
+                    .onAppear() {
+                        if UserDefaults.standard.bool(forKey: kIsLoggedIn) {
+                            isLoggedIn = true
+                        }
+                    }
         }
-        .navigationBarBackButtonHidden()
-        
+                .navigationBarBackButtonHidden()
+
     }
-    
+
 }
 
 struct Onboarding_Previews: PreviewProvider {
