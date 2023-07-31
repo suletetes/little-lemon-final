@@ -1,43 +1,36 @@
 //
-//  HeaderBar.swift
+//  Header.swift
 //  LittleLemonAppFinal
 //
 //  Created by suleabdul on 31.07.2023.
 //
 
+
 import SwiftUI
 
 struct Header: View {
-    @State var isLoggedIn = false
-    
+    @State private var isLoggedIn = UserDefaults.standard.bool(forKey: kIsLoggedIn)
+
     var body: some View {
-        NavigationStack {
-            VStack {
-                ZStack {
-                    Image("logo")
-                    HStack {
-                        Spacer()
-                        if isLoggedIn {
-                            NavigationLink(destination: UserProfile()) {
-                                Image("profile-image-placeholder")
-                                    .resizable()
-                                    .aspectRatio( contentMode: .fit)
-                                    .frame(maxHeight: 50)
-                                    .clipShape(Circle())
-                                    .padding(.trailing)
-                            }
-                        }
+        ZStack {
+            Image("logo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxHeight: 60)
+                    .padding(.bottom)
+
+            HStack {
+                Spacer()
+                if isLoggedIn {
+                    NavigationLink(destination: UserProfile()) {
+                        Image("profile-image-placeholder")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 50)
+                                .clipShape(Circle())
+                                .padding(.trailing)
                     }
                 }
-            }
-        }
-        .frame(maxHeight: 60)
-        .padding(.bottom)
-        .onAppear() {
-            if UserDefaults.standard.bool(forKey: kIsLoggedIn) {
-                isLoggedIn = true
-            } else {
-                isLoggedIn = false
             }
         }
     }
