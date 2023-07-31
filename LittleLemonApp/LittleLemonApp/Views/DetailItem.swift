@@ -8,37 +8,37 @@
 import SwiftUI
 
 struct DetailItem: View {
-    
-    @Environment(\.managedObjectContext) private var viewContext
-    
+
     let dish: Dish
-    
+
     var body: some View {
         ScrollView {
-            AsyncImage(url: URL(string: dish.image ?? "")) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-            } placeholder: {
-                ProgressView()
+            VStack(spacing: 20) {
+                AsyncImage(url: URL(string: dish.image ?? "")) { image in
+                    image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                } placeholder: {
+                    ProgressView()
+                }
+                        .frame(minHeight: 150)
+
+                Text(dish.title ?? "")
+                        .font(.subTitleFont())
+                        .foregroundColor(.primaryColor1)
+
+                Text(dish.descriptionDish ?? "")
+                        .font(.regularText())
+
+                Text("$" + (dish.price ?? ""))
+                        .font(.highlightText())
+                        .foregroundColor(.primaryColor1)
+                        .monospaced()
             }
-            .clipShape(Rectangle())
-            .frame(minHeight: 150)
-            Text(dish.title ?? "")
-                .font(.subTitleFont())
-                .foregroundColor(.primaryColor1)
-            Spacer(minLength: 20)
-            Text(dish.descriptionDish ?? "")
-                .font(.regularText())
-            Spacer(minLength: 10)
-            Text("$" + (dish.price ?? ""))
-                .font(.highlightText())
-                .foregroundColor(.primaryColor1)
-                .monospaced()
-            Spacer()
+                    .padding()
         }
-        .frame(maxWidth: .infinity)
-        .ignoresSafeArea()
+                .frame(maxWidth: .infinity)
+                .ignoresSafeArea()
     }
 }
 
@@ -47,3 +47,4 @@ struct DetailItem_Previews: PreviewProvider {
         DetailItem(dish: PersistenceController.oneDish())
     }
 }
+
