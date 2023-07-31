@@ -1,31 +1,33 @@
 //
-//  HeroSection.swift
+//  Menu.swift
 //  LittleLemonAppFinal
 //
 //  Created by suleabdul on 31.07.2023.
 //
+
 import SwiftUI
 import CoreData
 
 struct Menu: View {
-    
+
     @Environment(\.managedObjectContext) private var viewContext
-    
+    @EnvironmentObject private var viewModel: DishesModel // Add the DishesModel as an environment object
+
     @State var startersIsEnabled = true
     @State var mainsIsEnabled = true
     @State var dessertsIsEnabled = true
     @State var drinksIsEnabled = true
-    
+
     @State var searchText = ""
-    
+
     @State var loaded = false
-    
+
     @State var isKeyboardVisible = false
-    
+
     init() {
         UITextField.appearance().clearButtonMode = .whileEditing
     }
-    
+
     var body: some View {
         NavigationView {
             VStack {
@@ -33,21 +35,21 @@ struct Menu: View {
                     if !isKeyboardVisible {
                         withAnimation() {
                             Hero()
-                                .frame(maxHeight: 180)
+                                    .frame(maxHeight: 180)
                         }
                     }
                     TextField("Search menu", text: $searchText)
-                        .textFieldStyle(.roundedBorder)
+                            .textFieldStyle(.roundedBorder)
                 }
-                .padding()
-                .background(Color.primaryColor1)
-                
+                        .padding()
+                        .background(Color.primaryColor1)
+
                 Text("ORDER FOR DELIVERY!")
-                    .font(.sectionTitle())
-                    .foregroundColor(.highlightColor2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top)
-                    .padding(.leading)
+                        .font(.sectionTitle())
+                        .foregroundColor(.highlightColor2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top)
+                        .padding(.leading)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 20) {
                         Toggle("Starters", isOn: $startersIsEnabled)
@@ -55,47 +57,47 @@ struct Menu: View {
                         Toggle("Desserts", isOn: $dessertsIsEnabled)
                         Toggle("Drinks", isOn: $drinksIsEnabled)
                     }
-                    .toggleStyle(MyToggleStyle())
-                    .padding(.horizontal)
+                            .toggleStyle(MyToggleStyle())
+                            .padding(.horizontal)
                 }
                 FetchedObjects(predicate: buildPredicate(),
-                               sortDescriptors: buildSortDescriptors()) {
+                        sortDescriptors: buildSortDescriptors()) {
                     (dishes: [Dish]) in
                     List(dishes) { dish in
                         NavigationLink(destination: DetailItem(dish: dish)) {
                             FoodItem(dish: dish)
                         }
                     }
-                    .listStyle(.plain)
+                            .listStyle(.plain)
                 }
             }
         }
-        .onAppear {
-            if !loaded {
-                MenuList.getMenuData(viewContext: viewContext)
-                loaded = true
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-            withAnimation {
-                self.isKeyboardVisible = true
-            }
-            
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
-            withAnimation {
-                self.isKeyboardVisible = false
-            }
-        }
+                .onAppear {
+                    if !loaded {
+                        viewModel.reload(viewContext) // Call the reload function from the DishesModel
+                        loaded = true
+                    }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+                    withAnimation {
+                        self.isKeyboardVisible = true
+                    }
+
+                }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notification in
+                    withAnimation {
+                        self.isKeyboardVisible = false
+                    }
+                }
     }
-    
+
     func buildSortDescriptors() -> [NSSortDescriptor] {
         return [NSSortDescriptor(key: "title",
-                                  ascending: true,
-                                  selector:
-                                    #selector(NSString.localizedStandardCompare))]
+                ascending: true,
+                selector:
+                #selector(NSString.localizedStandardCompare))]
     }
-    
+
     func buildPredicate() -> NSCompoundPredicate {
         let search = searchText == "" ? NSPredicate(value: true) : NSPredicate(format: "title CONTAINS[cd] %@", searchText)
         let starters = !startersIsEnabled ? NSPredicate(format: "category != %@", "starters") : NSPredicate(value: true)
@@ -110,6 +112,8 @@ struct Menu: View {
 
 struct Menu_Previews: PreviewProvider {
     static var previews: some View {
-        Menu().environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+        Menu()
+                .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
+                .environmentObject(DishesModel()) // Provide a DishesModel as an environment object for previews
     }
 }
